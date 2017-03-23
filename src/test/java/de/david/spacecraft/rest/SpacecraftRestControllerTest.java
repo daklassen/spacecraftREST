@@ -1,8 +1,6 @@
 package de.david.spacecraft.rest;
 
-import de.david.spacecraft.persistence.Spacecraft;
-import de.david.spacecraft.persistence.SpacecraftRepository;
-import de.david.spacecraft.persistence.SpacecraftType;
+import de.david.spacecraft.persistence.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +24,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -50,6 +48,9 @@ public class SpacecraftRestControllerTest {
     private SpacecraftRepository spacecraftRepository;
 
     @Autowired
+    private CaptainRepository captainRepository;
+
+    @Autowired
     private WebApplicationContext context;
 
     @Autowired
@@ -69,11 +70,14 @@ public class SpacecraftRestControllerTest {
     public void setup() throws Exception {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 
+        Captain captain = new Captain("James Tiberius", "Kirk");
+        captainRepository.save(captain);
+
         testSpacecrafts = new ArrayList<>();
-        testSpacecrafts.add(new Spacecraft("SA-23E Aurora", "James Tiberius Kirk", new Date(), true, SpacecraftType.CRUISER));
-        testSpacecrafts.add(new Spacecraft("Raider Fighter", "Colonel Jack O'Neil", new Date(), true, SpacecraftType.FRIGATE));
-        testSpacecrafts.add(new Spacecraft("Colonial Viper", "David Bowman", new Date(), true, SpacecraftType.FREIGHTER));
-        testSpacecrafts.add(new Spacecraft("Star Fighter", "William T. Riker", new Date(), false, SpacecraftType.FERRY));
+        testSpacecrafts.add(new Spacecraft("SA-23E Aurora", captain, new Date(), true, SpacecraftType.CRUISER));
+        testSpacecrafts.add(new Spacecraft("Raider Fighter", captain, new Date(), true, SpacecraftType.FRIGATE));
+        testSpacecrafts.add(new Spacecraft("Colonial Viper", captain, new Date(), true, SpacecraftType.FREIGHTER));
+        testSpacecrafts.add(new Spacecraft("Star Fighter", captain, new Date(), false, SpacecraftType.FERRY));
 
         this.spacecraftRepository.deleteAllInBatch();
 

@@ -14,7 +14,9 @@ public class Spacecraft {
     private Long id;
 
     private String identification;
-    private String captain;
+
+    @ManyToOne
+    private Captain captain;
     private Date comissioning;
     private boolean available;
 
@@ -29,7 +31,7 @@ public class Spacecraft {
         return identification;
     }
 
-    public String getCaptain() {
+    public Captain getCaptain() {
         return captain;
     }
 
@@ -46,9 +48,9 @@ public class Spacecraft {
     }
 
     Spacecraft() {
-    }
+    } // needed for JPA
 
-    public Spacecraft(String identification, String captain,
+    public Spacecraft(String identification, Captain captain,
                       Date comissioning, boolean available, SpacecraftType type) {
         this.identification = identification;
         this.captain = captain;

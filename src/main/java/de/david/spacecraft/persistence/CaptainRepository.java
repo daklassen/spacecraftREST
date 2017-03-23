@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /**
  * @author David Klassen
  */
-public interface SpacecraftRepository extends JpaRepository<Spacecraft, Long> {
+public interface CaptainRepository extends JpaRepository<Captain, Long> {
 }
