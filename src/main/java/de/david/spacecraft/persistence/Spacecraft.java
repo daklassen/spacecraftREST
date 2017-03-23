@@ -47,4 +47,13 @@ public class Spacecraft {
 
     Spacecraft() {
     }
+
+    public Spacecraft(String identification, String captain,
+                      Date comissioning, boolean available, SpacecraftType type) {
+        this.identification = identification;
+        this.captain = captain;
+        this.comissioning = comissioning;
+        this.available = available;
+        this.type = type;
+    }
 }
