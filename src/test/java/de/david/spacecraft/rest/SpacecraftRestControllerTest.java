@@ -18,10 +18,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -60,22 +63,44 @@ public class SpacecraftRestControllerTest {
         assertThat(this.mappingJackson2HttpMessageConverter).isNotNull();
     }
 
+    private List<Spacecraft> testSpacecrafts;
+
     @Before
     public void setup() throws Exception {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 
+        testSpacecrafts = new ArrayList<>();
+        testSpacecrafts.add(new Spacecraft("SA-23E Aurora", "James Tiberius Kirk", new Date(), true, SpacecraftType.CRUISER));
+        testSpacecrafts.add(new Spacecraft("Raider Fighter", "Colonel Jack O'Neil", new Date(), true, SpacecraftType.FRIGATE));
+        testSpacecrafts.add(new Spacecraft("Colonial Viper", "David Bowman", new Date(), true, SpacecraftType.FREIGHTER));
+        testSpacecrafts.add(new Spacecraft("Star Fighter", "William T. Riker", new Date(), false, SpacecraftType.FERRY));
+
         this.spacecraftRepository.deleteAllInBatch();
-        this.spacecraftRepository.save(
-                new Spacecraft("SA-23E Aurora", "James Tiberius Kirk", new Date(), true, SpacecraftType.CRUISER)
-        );
+
+        testSpacecrafts.forEach(spacecraft -> this.spacecraftRepository.save(spacecraft));
     }
 
     @Test
-    public void readSpacecrafts_WithOneSavedSpacecraft_ReturnsSavedSpacecraftInValidJSON() throws Exception {
+    public void readSpacecrafts_WithSavedSpacecrafts_ReturnsSavedSpacecraftsInValidJSON() throws Exception {
         mockMvc.perform(get("/spacecrafts"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$[0].identification", is("SA-23E Aurora")));
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].identification", is("SA-23E Aurora")))
+                .andExpect(jsonPath("$[1].identification", is("Raider Fighter")))
+                .andExpect(jsonPath("$[2].identification", is("Colonial Viper")))
+                .andExpect(jsonPath("$[3].identification", is("Star Fighter")));
+    }
+
+    @Test
+    public void readSpacecrafts_WithZeroSpacecrafts_ReturnsEmptyJSON() throws Exception {
+        this.spacecraftRepository.deleteAllInBatch();
+
+        mockMvc.perform(get("/spacecrafts"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 }
