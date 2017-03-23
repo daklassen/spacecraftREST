@@ -15,6 +15,13 @@
 *.iws
 *.iml
 *.ipr
+/buildSrc/*.iml
+/buildSrc/*.ipr
+/buildSrc/*.iws
+/buildSrc/out
+/out
+/subprojects/*/*.iml
+/subprojects/*/out
 
 ### NetBeans ###
 nbproject/private/
@@ -23,3 +30,16 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+
+#Stuff
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+*/bin
+*bin
+*.bin
+*bin
