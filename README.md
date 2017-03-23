@@ -17,3 +17,8 @@ Build the Intellij project with gradle:
 gradlew cleanidea idea
 ```
 Now you can open the generated Intellij project and start working on the projekt.
+
+### REST documentation
+
+You can reach the documentation (generated with swagger) with: 
+> http://localhost:8080/swagger-ui.html
