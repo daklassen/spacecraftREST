@@ -18,7 +18,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,16 +25,18 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author David Klassen
  */
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @WebAppConfiguration
-public class SpacecraftRestControllerTest {
-
+public class CaptainRestControllerTest {
     private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(),
             Charset.forName("utf8"));
@@ -64,7 +65,7 @@ public class SpacecraftRestControllerTest {
         assertThat(mappingJackson2HttpMessageConverter).isNotNull();
     }
 
-    private List<Spacecraft> testSpacecrafts;
+    private List<Captain> testCaptains;
 
     @Before
     public void setup() throws Exception {
@@ -73,36 +74,33 @@ public class SpacecraftRestControllerTest {
         spacecraftRepository.deleteAllInBatch();
         captainRepository.deleteAllInBatch();
 
-        Captain captain = new Captain("James Tiberius", "Kirk");
-        captainRepository.save(captain);
+        testCaptains = new ArrayList<>();
+        testCaptains.add(new Captain("James Tiberius1", "Kirk1"));
+        testCaptains.add(new Captain("James Tiberius2", "Kirk2"));
+        testCaptains.add(new Captain("James Tiberius3", "Kirk3"));
+        testCaptains.add(new Captain("James Tiberius4", "Kirk4"));
 
-        testSpacecrafts = new ArrayList<>();
-        testSpacecrafts.add(new Spacecraft("SA-23E Aurora", captain, new Date(), true, SpacecraftType.CRUISER));
-        testSpacecrafts.add(new Spacecraft("Raider Fighter", captain, new Date(), true, SpacecraftType.FRIGATE));
-        testSpacecrafts.add(new Spacecraft("Colonial Viper", captain, new Date(), true, SpacecraftType.FREIGHTER));
-        testSpacecrafts.add(new Spacecraft("Star Fighter", captain, new Date(), false, SpacecraftType.FERRY));
-
-        testSpacecrafts.forEach(spacecraft -> spacecraftRepository.save(spacecraft));
+        testCaptains.forEach(captain -> captainRepository.save(captain));
     }
 
     @Test
-    public void readSpacecrafts_WithSavedSpacecrafts_ReturnsSavedSpacecraftsInValidJSON() throws Exception {
-        mockMvc.perform(get("/spacecrafts"))
+    public void readCaptains_WithSavedCaptains_ReturnsSavedCaptainsInValidJSON() throws Exception {
+        mockMvc.perform(get("/captains"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$", hasSize(4)))
-                .andExpect(jsonPath("$[0].identification", is("SA-23E Aurora")))
-                .andExpect(jsonPath("$[1].identification", is("Raider Fighter")))
-                .andExpect(jsonPath("$[2].identification", is("Colonial Viper")))
-                .andExpect(jsonPath("$[3].identification", is("Star Fighter")));
+                .andExpect(jsonPath("$[0].lastName", is("Kirk1")))
+                .andExpect(jsonPath("$[1].lastName", is("Kirk2")))
+                .andExpect(jsonPath("$[2].lastName", is("Kirk3")))
+                .andExpect(jsonPath("$[3].lastName", is("Kirk4")));
     }
 
     @Test
     public void readSpacecrafts_WithZeroSpacecrafts_ReturnsEmptyJSON() throws Exception {
-        this.spacecraftRepository.deleteAllInBatch();
+        this.captainRepository.deleteAllInBatch();
 
-        mockMvc.perform(get("/spacecrafts"))
+        mockMvc.perform(get("/captains"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
