@@ -56,19 +56,22 @@ public class SpacecraftRestControllerTest {
     @Autowired
     void setConverters(HttpMessageConverter<?>[] converters) {
 
-        this.mappingJackson2HttpMessageConverter = Arrays.asList(converters).stream()
+        mappingJackson2HttpMessageConverter = Arrays.asList(converters).stream()
                 .filter(hmc -> hmc instanceof MappingJackson2HttpMessageConverter)
                 .findAny()
                 .orElse(null);
 
-        assertThat(this.mappingJackson2HttpMessageConverter).isNotNull();
+        assertThat(mappingJackson2HttpMessageConverter).isNotNull();
     }
 
     private List<Spacecraft> testSpacecrafts;
 
     @Before
     public void setup() throws Exception {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+
+        spacecraftRepository.deleteAllInBatch();
+        captainRepository.deleteAllInBatch();
 
         Captain captain = new Captain("James Tiberius", "Kirk");
         captainRepository.save(captain);
@@ -79,9 +82,7 @@ public class SpacecraftRestControllerTest {
         testSpacecrafts.add(new Spacecraft("Colonial Viper", captain, new Date(), true, SpacecraftType.FREIGHTER));
         testSpacecrafts.add(new Spacecraft("Star Fighter", captain, new Date(), false, SpacecraftType.FERRY));
 
-        this.spacecraftRepository.deleteAllInBatch();
-
-        testSpacecrafts.forEach(spacecraft -> this.spacecraftRepository.save(spacecraft));
+        testSpacecrafts.forEach(spacecraft -> spacecraftRepository.save(spacecraft));
     }
 
     @Test

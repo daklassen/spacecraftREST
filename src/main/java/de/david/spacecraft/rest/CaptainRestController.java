@@ -14,7 +14,7 @@ import java.util.Collection;
  */
 @RestController
 @RequestMapping("/captains")
-public class CaptainController {
+public class CaptainRestController {
 
     @Autowired
     CaptainRepository captainRepository;
