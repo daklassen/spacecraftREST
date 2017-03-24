@@ -170,6 +170,19 @@ public class SpacecraftRestControllerTest {
                 .andExpect(status().is(204)); // HTTP status 204 : "No Content"
     }
 
+    @Test
+    public void deleteSpacecraft_WithValidId_DeletesSpacecraftFromRepo() throws Exception {
+        spacecraftRepository.deleteAllInBatch();
+
+        Spacecraft spacecraft = new Spacecraft("SA-23E Aurora", testCaptain, new Date(), true, SpacecraftType.CRUISER);
+        spacecraft = spacecraftRepository.save(spacecraft);
+
+        mockMvc.perform(delete("/spacecrafts/" + spacecraft.getId()))
+                .andExpect(status().is(202)); // HTTP status 202 : "Accepted"
+
+        assertThat(spacecraftRepository.findOne(spacecraft.getId())).isNull();
+    }
+
     protected String json(Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         this.mappingJackson2HttpMessageConverter.write(
