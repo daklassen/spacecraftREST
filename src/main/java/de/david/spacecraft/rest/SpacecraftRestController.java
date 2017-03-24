@@ -31,7 +31,7 @@ public class SpacecraftRestController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    ResponseEntity<?> add(@RequestBody Spacecraft input) {
+    ResponseEntity<?> createSpacecraft(@RequestBody Spacecraft input) {
 
         Spacecraft result = spacecraftRepository.save(
                 new Spacecraft(input.getIdentification(),
@@ -44,7 +44,7 @@ public class SpacecraftRestController {
     }
 
     @RequestMapping(method = RequestMethod.PUT)
-    ResponseEntity<?> update(@RequestBody Spacecraft input) {
+    ResponseEntity<?> updateSpacecraft(@RequestBody Spacecraft input) {
         Spacecraft updatedSpacecraft = spacecraftRepository.findOne(input.getId());
 
         if (updatedSpacecraft == null) {
@@ -58,6 +58,16 @@ public class SpacecraftRestController {
         Spacecraft result = spacecraftRepository.save(updatedSpacecraft);
 
         return createResposeEntityWithLocation(result);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{spacecraftId}")
+    ResponseEntity<?> deleteSpacecraft(@PathVariable Long spacecraftId) {
+        if (spacecraftRepository.exists(spacecraftId)) {
+            spacecraftRepository.delete(spacecraftId);
+            return ResponseEntity.accepted().build();
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
     private ResponseEntity createResposeEntityWithLocation(Spacecraft result) {
