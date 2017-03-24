@@ -47,7 +47,27 @@ public class Spacecraft {
         return type;
     }
 
-    Spacecraft() {
+    public void setIdentification(String identification) {
+        this.identification = identification;
+    }
+
+    public void setCaptain(Captain captain) {
+        this.captain = captain;
+    }
+
+    public void setComissioning(Date comissioning) {
+        this.comissioning = comissioning;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    public void setType(SpacecraftType type) {
+        this.type = type;
+    }
+
+    protected Spacecraft() {
     } // needed for JPA
 
     public Spacecraft(String identification, Captain captain,
