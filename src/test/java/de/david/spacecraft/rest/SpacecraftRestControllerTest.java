@@ -1,6 +1,8 @@
 package de.david.spacecraft.rest;
 
 import de.david.spacecraft.persistence.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,12 +11,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.http.MockHttpOutputMessage;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -65,6 +71,7 @@ public class SpacecraftRestControllerTest {
     }
 
     private List<Spacecraft> testSpacecrafts;
+    private Captain testCaptain;
 
     @Before
     public void setup() throws Exception {
@@ -73,14 +80,14 @@ public class SpacecraftRestControllerTest {
         spacecraftRepository.deleteAllInBatch();
         captainRepository.deleteAllInBatch();
 
-        Captain captain = new Captain("James Tiberius", "Kirk");
-        captainRepository.save(captain);
+        testCaptain = new Captain("James Tiberius", "Kirk");
+        captainRepository.save(testCaptain);
 
         testSpacecrafts = new ArrayList<>();
-        testSpacecrafts.add(new Spacecraft("SA-23E Aurora", captain, new Date(), true, SpacecraftType.CRUISER));
-        testSpacecrafts.add(new Spacecraft("Raider Fighter", captain, new Date(), true, SpacecraftType.FRIGATE));
-        testSpacecrafts.add(new Spacecraft("Colonial Viper", captain, new Date(), true, SpacecraftType.FREIGHTER));
-        testSpacecrafts.add(new Spacecraft("Star Fighter", captain, new Date(), false, SpacecraftType.FERRY));
+        testSpacecrafts.add(new Spacecraft("SA-23E Aurora", testCaptain, new Date(), true, SpacecraftType.CRUISER));
+        testSpacecrafts.add(new Spacecraft("Raider Fighter", testCaptain, new Date(), true, SpacecraftType.FRIGATE));
+        testSpacecrafts.add(new Spacecraft("Colonial Viper", testCaptain, new Date(), true, SpacecraftType.FREIGHTER));
+        testSpacecrafts.add(new Spacecraft("Star Fighter", testCaptain, new Date(), false, SpacecraftType.FERRY));
 
         testSpacecrafts.forEach(spacecraft -> spacecraftRepository.save(spacecraft));
     }
@@ -107,5 +114,69 @@ public class SpacecraftRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    public void addSpacecrafts_WithWrongSyntax_ReturnsBadRequest() throws Exception {
+        this.spacecraftRepository.deleteAllInBatch();
+
+        mockMvc.perform(post("/spacecrafts")
+                .content("{wrong:syntax}")
+                .contentType(contentType))
+                .andExpect(status().is(400)); // HTTP status 400 : "Bad Request"
+    }
+
+    @Test
+    public void addSpacecrafts_WithValidSpacecraft_ReturnsIsCreated() throws Exception {
+        this.spacecraftRepository.deleteAllInBatch();
+
+        Spacecraft spacecraft = new Spacecraft("SA-23E Aurora", testCaptain, new Date(), true, SpacecraftType.CRUISER);
+
+        mockMvc.perform(post("/spacecrafts")
+                .content(json(spacecraft))
+                .contentType(contentType))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void updateSpacecraft_WithExistingSpacecraft_UpdatesSpacecraft() throws Exception {
+        spacecraftRepository.deleteAllInBatch();
+
+        Spacecraft spacecraft = new Spacecraft("SA-23E Aurora", testCaptain, new Date(), true, SpacecraftType.CRUISER);
+        Spacecraft savedSpacecraft = spacecraftRepository.save(spacecraft);
+
+        String newName = "New SA-23E Aurora";
+        savedSpacecraft.setIdentification(newName);
+
+        mockMvc.perform(put("/spacecrafts")
+                .content(json(savedSpacecraft))
+                .contentType(contentType))
+                .andExpect(status().isCreated());
+
+        assertThat(spacecraftRepository.findOne(savedSpacecraft.getId()).getIdentification())
+                .isEqualTo(newName);
+
+    }
+
+    @Test
+    public void updateSpacecraft_WithNonExistingSpacecraft_ReturnsNoContent() throws Exception {
+        spacecraftRepository.deleteAllInBatch();
+
+        Spacecraft spacecraft = new Spacecraft("SA-23E Aurora", testCaptain, new Date(), true, SpacecraftType.CRUISER);
+
+        JSONObject jsonObject = new JSONObject(json(spacecraft));
+        jsonObject.put("id", 5);
+
+        mockMvc.perform(put("/spacecrafts")
+                .content(jsonObject.toString())
+                .contentType(contentType))
+                .andExpect(status().is(204)); // HTTP status 204 : "No Content"
+    }
+
+    protected String json(Object o) throws IOException {
+        MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
+        this.mappingJackson2HttpMessageConverter.write(
+                o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
+        return mockHttpOutputMessage.getBodyAsString();
     }
 }
