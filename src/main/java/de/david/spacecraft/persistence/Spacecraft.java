@@ -67,7 +67,7 @@ public class Spacecraft {
         this.type = type;
     }
 
-    protected Spacecraft() {
+    Spacecraft() {
     } // needed for JPA
 
     public Spacecraft(String identification, Captain captain,

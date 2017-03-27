@@ -183,6 +183,27 @@ public class SpacecraftRestControllerTest {
         assertThat(spacecraftRepository.findOne(spacecraft.getId())).isNull();
     }
 
+    @Test
+    public void getAvailableSpacecrafts_WithAvailableSpacecraftsInRepo_ReturnsAvailableSpacecrafts() throws Exception {
+        mockMvc.perform(get("/spacecrafts/available"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].identification", is("SA-23E Aurora")))
+                .andExpect(jsonPath("$[1].identification", is("Raider Fighter")))
+                .andExpect(jsonPath("$[2].identification", is("Colonial Viper")));
+    }
+
+    @Test
+    public void getSpacecraftByType_WithValidType_ReturnsAllSpacecraftsWithThatType() throws Exception {
+        mockMvc.perform(get("/spacecrafts/type/FRIGATE"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].identification", is("Raider Fighter")));
+
+    }
+
     protected String json(Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         this.mappingJackson2HttpMessageConverter.write(

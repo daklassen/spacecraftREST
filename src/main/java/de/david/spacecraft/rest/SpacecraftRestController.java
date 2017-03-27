@@ -2,6 +2,7 @@ package de.david.spacecraft.rest;
 
 import de.david.spacecraft.persistence.Spacecraft;
 import de.david.spacecraft.persistence.SpacecraftRepository;
+import de.david.spacecraft.persistence.SpacecraftType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,6 +54,7 @@ public class SpacecraftRestController {
 
         updatedSpacecraft.setIdentification(input.getIdentification());
         updatedSpacecraft.setCaptain(input.getCaptain());
+        updatedSpacecraft.setComissioning(input.getComissioning());
         updatedSpacecraft.setAvailable(input.isAvailable());
         updatedSpacecraft.setType(input.getType());
         Spacecraft result = spacecraftRepository.save(updatedSpacecraft);
@@ -68,6 +70,16 @@ public class SpacecraftRestController {
         }
 
         return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/available")
+    Collection<Spacecraft> getAllAvailableSpacecrafts() {
+        return spacecraftRepository.findByAvailableTrue();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/type/{type}")
+    Collection<Spacecraft> getSpacecraftsByType(@PathVariable String type) {
+        return spacecraftRepository.findByType(SpacecraftType.valueOf(type));
     }
 
     private ResponseEntity createResposeEntityWithLocation(Spacecraft result) {
