@@ -20,7 +20,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("de.david.spacecraft.rest"))
+                .apis(RequestHandlerSelectors.basePackage("de.david.spacecraft.restcontroller"))
                 .paths(PathSelectors.any())
                 .build();
     }
