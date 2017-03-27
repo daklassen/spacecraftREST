@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/daklassen/spacecraftREST.svg?branch=master)](https://travis-ci.org/daklassen/spacecraftREST)
 
-Project for learning to create a REST service with Spring.
+Project for learning to create a REST service with Spring. I used [this great guide](https://spring.io/guides/tutorials/bookmarks/) as a refrence.
 
 ### Quickstart Intellij
 
