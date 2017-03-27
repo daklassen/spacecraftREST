@@ -103,6 +103,19 @@ public class SpacecraftRestControllerTest {
     }
 
     @Test
+    public void readSpacecraftById_WithValidId_ReturnsCorrectSpacecraft() throws Exception {
+        spacecraftRepository.deleteAllInBatch();
+
+        Spacecraft spacecraft = new Spacecraft("SA-23E Aurora", testCaptain, new Date(), true, SpacecraftType.CRUISER);
+        Spacecraft savedSpacecraft = spacecraftRepository.save(spacecraft);
+
+        mockMvc.perform(get("/spacecrafts/" + savedSpacecraft.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.identification", is("SA-23E Aurora")));
+    }
+
+    @Test
     public void readSpacecrafts_WithZeroSpacecrafts_ReturnsEmptyJSON() throws Exception {
         this.spacecraftRepository.deleteAllInBatch();
 
